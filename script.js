@@ -1,12 +1,12 @@
 document.body.style.margin = "0px";
 
-const keys0 = ["Reb", "sib", "Solb", "mib", "Dob", "lab", "Mi", "do#", "La", "fa#", "Re", "si", "Sol", "mi", "Do", "la", "Fa", "re", "Sib", "sol", "Mib", "do", "Lab", "fa"];
+const keys0 = ["sib", "re#", "sol#", "do#", "fa#", "si", "mi", "la", "re", "sol", "do", "fa", "Reb", "Fa#", "Si", "Mi", "La", "Re", "Sol", "Do", "Fa", "Sib", "Mib", "Lab"];
 
-const signatures0 = ["Major, 5b", "minor, 5b", "Major, 6b", "minor, 6b", "Major, 7b", "minor, 7b", "Major, 4#", "minor, 4#", "Major, 3#", "minor, 3#", "Major, 2#", "minor, 2#", "Major, 1#", "minor, 1#", "Major, 0", "minor, 0", "Major, 1b", "minor, 1b", "Major, 2b", "minor, 2b", "Major, 3b", "minor, 3b", "Major, 4b", "minor, 4b"];
+const signatures0 = ["minor, 5b", "minor, 6#", "minor, 5#", "minor, 4#", "minor, 3#", "minor, 2#", "minor, 1#", "minor, 0#/b", "minor, 1b", "minor, 2b", "minor, 3b", "minor, 4b", "Major, 5b", "Major, 6#", "Major, 5#", "Major, 4#", "Major, 3#", "Major, 2#", "Major, 1#", "Major, 0#/b", "Major, 1b", "Major, 2b", "Major, 3b", "Major, 4b"];
 
-const keys1 = ["Do#", "la#", "Fa#", "re#", "Si", "sol#"];
+const keys1 = ["la#", "mib", "lab", "Do#", "Solb", "Dob"];
 
-const signatures1 = ["Major, 7#", "minor, 7#", "Major, 6#", "minor, 6#", "Major, 5#", "minor, 5#"];
+const signatures1 = ["minor, 7#", "minor, 6b", "minor, 7b", "Major, 7#", "Major, 6b", "Major, 7b"];
 
 const buttonWidth = "2.5rem";
 const buttonHeight = "2.5rem";
@@ -47,7 +47,7 @@ requirementT1.style.display = "inline";
 requirementT1.textContent = signatures[q];
 requirement.appendChild(requirementT1);
 
-const rights = document.createElement("div");
+/*const rights = document.createElement("div");
 bar.appendChild(rights);
 
 let r = 0;
@@ -75,15 +75,19 @@ wrongs.appendChild(wrongsN);
 const wrongsT = document.createElement("div");
 wrongsT.style.display = "inline";
 wrongsT.textContent = " răspunsuri greșite";
-wrongs.appendChild(wrongsT);
+wrongs.appendChild(wrongsT);*/
 
 
-function createButton(parent, id, array)
+function createButton(x, y, id, array)
 {
     const button = document.createElement("button");
     button.style.width = buttonWidth;
     button.style.height = buttonHeight;
     button.style.borderRadius = buttonBorderRadius;
+    button.style.position = "absolute";
+    button.style.transform = "translate(-50%, -50%)";
+    button.style.marginLeft = x + "rem";
+    button.style.marginTop = y + "rem";
 
     let signature;
 
@@ -102,84 +106,45 @@ function createButton(parent, id, array)
     {
         if (signatures[q] == signature)
         {
-            r++;
-            rightsN.textContent = r;
-
-            if (r == 1)
-            {
-                rightsT.textContent = " răspuns corect";
-            }
-            else
-            {
-                rightsT.textContent = " răspunsuri corecte";
-            }
+            button.style.backgroundColor = "green";
+            setTimeout(function(){button.style.backgroundColor = "white"}, 500);
+            q = (q + 1) % signatures.length;
         }
         else
         {
-            w++;
-            wrongsN.textContent = w;
-
-            if (w == 1)
-            {
-                wrongsT.textContent = " răspuns greșit";
-            }
-            else
-            {
-                wrongsT.textContent = " răspunsuri greșite";
-            }
+            button.style.backgroundColor = "red";
+            setTimeout(function(){button.style.backgroundColor = "white"}, 500);
         }
 
-        q++;
         requirementT1.textContent = signatures[q];
     }
 
-    parent.appendChild(button);
+    map.appendChild(button);
 }
 
-const radius = 11;
+const radius = 6;
+const width = 2.8;
+const marginDifference = 1.4;
 const numButtons = 12;
 
-for (let i = -1; i < numButtons - 1; i++)
+for (let i = 0; i < 2; i++)
 {
-    let x = radius * Math.sin(Math.PI * 2 * i / numButtons) + radius + (30 - radius * 2) / 2;
-    let y = (radius * Math.cos(Math.PI * 2 * i / numButtons) + radius + (30 - radius * 2) / 2);
-
-    const holder = document.createElement("div");
-    holder.style.position = "absolute";
-    holder.style.transform = "translate(-50%, -50%)";
-    holder.style.marginLeft = x + "rem";
-    holder.style.marginTop = y + "rem";
-    map.appendChild(holder);
-
-    const table = document.createElement("table");
-    holder.appendChild(table);
-
-    const r0 = document.createElement("tr");
-    table.appendChild(r0);
-
-    const r1 = document.createElement("tr");
-    table.appendChild(r1);
-
-    const d0 = document.createElement("td");
-    d0.style.padding = "0px";
-    r0.appendChild(d0);
-    createButton(d0, (i + 1) * 2, 0);
-
-    const d1 = document.createElement("td");
-    d1.style.padding = "0px";
-    r1.appendChild(d1);
-    createButton(d1, (i + 1) * 2 + 1, 0);
-
-    if (i < 2)
+    for (let j = -1; j < numButtons - 1; j++)
     {
-        const d2 = document.createElement("td");
-        d2.style.padding = "0px";
-        r0.appendChild(d2);
-        createButton(d2, (i + 1) * 2, 1);
+        let r = radius + (i + 1) * width;
+        let x = r * Math.sin(Math.PI * 2 * j / numButtons) + r + (30 - r * 2) / 2;
+        let y = r * Math.cos(Math.PI * 2 * j / numButtons) + r + (30 - r * 2) / 2;
+        createButton(x, y - marginDifference, i * numButtons + j + 1, 0);
+    }
+}
 
-        const d3 = document.createElement("td");
-        d3.style.padding = "0px";
-        r1.appendChild(d3);
-        createButton(d3, (i + 1) * 2 + 1, 1);
+for (let i = 0; i < 2; i++)
+{
+    for (let j = -1; j < 2; j++)
+    {
+        let r = radius + i * width * 3;
+        let x = r * Math.sin(Math.PI * 2 * j / numButtons) + r + (30 - r * 2) / 2;
+        let y = r * Math.cos(Math.PI * 2 * j / numButtons) + r + (30 - r * 2) / 2;
+        createButton(x, y - marginDifference, i * 3 + j + 1, 1);
     }
 }
