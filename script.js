@@ -1,12 +1,8 @@
 document.body.style.margin = "0px";
 
-const keys0 = ["sib", "re#", "sol#", "do#", "fa#", "si", "mi", "la", "re", "sol", "do", "fa", "Reb", "Fa#", "Si", "Mi", "La", "Re", "Sol", "Do", "Fa", "Sib", "Mib", "Lab"];
+const keys0 = ["la#", "re#", "sol#", "do#", "fa#", "si", "mi", "la", "re", "sol", "do", "fa", "sib", "mib", "lab", "Do#", "Fa#", "Si", "Mi", "La", "Re", "Sol", "Do", "Fa", "Sib", "Mib", "Lab", "Reb", "Solb", "Dob"];
 
-const signatures0 = ["minor, 5b", "minor, 6#", "minor, 5#", "minor, 4#", "minor, 3#", "minor, 2#", "minor, 1#", "minor, 0#/b", "minor, 1b", "minor, 2b", "minor, 3b", "minor, 4b", "Major, 5b", "Major, 6#", "Major, 5#", "Major, 4#", "Major, 3#", "Major, 2#", "Major, 1#", "Major, 0#/b", "Major, 1b", "Major, 2b", "Major, 3b", "Major, 4b"];
-
-const keys1 = ["la#", "mib", "lab", "Do#", "Solb", "Dob"];
-
-const signatures1 = ["minor, 7#", "minor, 6b", "minor, 7b", "Major, 7#", "Major, 6b", "Major, 7b"];
+const keys1 = ["la#\n(7#)", "re#\n(6#)", "sol#\n(5#)", "do#\n(4#)", "fa#\n(3#)", "si\n(2#)", "mi\n(1#)", "la", "re\n(1b)", "sol\n(2b)", "do\n(3b)", "fa\n(4b)", "sib\n(5b)", "mib\n(6b)", "lab\n(7b)", "Do#\n(7#)", "Fa#\n(6#)", "Si\n(5#)", "Mi\n(4#)", "La\n(3#)", "Re\n(2#)", "Sol\n(1#)", "Do", "Fa\n(1b)", "Sib\n(2b)", "Mib\n(3b)", "Lab\n(4b)", "Reb\n(5b)", "Solb\n(6b)", "Dob\n(7b)"];
 
 const buttonWidth = "2.5rem";
 const buttonHeight = "2.5rem";
@@ -30,55 +26,54 @@ map.style.margin = "auto";
 map.style.backgroundColor = "gray";
 document.body.appendChild(map);
 
-let signatures = signatures0.concat(signatures1);
-signatures.sort(() => Math.random() - 0.5);
+let keys = [...keys0];
+keys.sort(() => Math.random() - 0.5);
 
 const requirement = document.createElement("div");
 bar.appendChild(requirement);
 
 const requirementT0 = document.createElement("div");
 requirementT0.style.display = "inline";
-requirementT0.textContent = "Alege: ";
+requirementT0.textContent = "Selectează: ";
 requirement.appendChild(requirementT0);
 
 let q = 0;
 const requirementT1 = document.createElement("div");
 requirementT1.style.display = "inline";
-requirementT1.textContent = signatures[q];
+requirementT1.textContent = keys[q];
 requirement.appendChild(requirementT1);
 
-/*const rights = document.createElement("div");
-bar.appendChild(rights);
+let rights = 0;
+let total = 0;
 
-let r = 0;
-const rightsN = document.createElement("div");
-rightsN.style.display = "inline";
-rightsN.style.color = "green";
-rightsN.textContent = r;
-rights.appendChild(rightsN);
+const accuracy = document.createElement("div");
+bar.appendChild(accuracy);
 
-const rightsT = document.createElement("div");
-rightsT.style.display = "inline";
-rightsT.textContent = " răspunsuri corecte";
-rights.appendChild(rightsT);
+const accuracyT = document.createElement("div");
+accuracyT.style.display = "inline";
+accuracyT.textContent = "Acuratețe: ";
+accuracy.appendChild(accuracyT);
 
-const wrongs = document.createElement("div");
-bar.appendChild(wrongs);
+const accuracyP = document.createElement("div");
+accuracyP.style.display = "inline";
+accuracyP.textContent = "0%";
+accuracy.appendChild(accuracyP);
 
-let w = 0;
-const wrongsN = document.createElement("div");
-wrongsN.style.display = "inline";
-wrongsN.style.color = "red";
-wrongsN.textContent = w;
-wrongs.appendChild(wrongsN);
+let seconds = 0;
 
-const wrongsT = document.createElement("div");
-wrongsT.style.display = "inline";
-wrongsT.textContent = " răspunsuri greșite";
-wrongs.appendChild(wrongsT);*/
+const time = document.createElement("div");
+time.textContent = "Timp: 00:00";
+bar.appendChild(time);
 
+let timeHandler = setInterval(function()
+{
+    seconds++;
+    let minutes =  Math.floor(seconds / 60);
+    let seconds1 = seconds - minutes * 60;
+    time.textContent = "Timp: " + Math.floor(minutes / 10) + "" + minutes % 10 + ":" + Math.floor(seconds1 / 10) + "" + seconds1 % 10;
+}, 1000);
 
-function createButton(x, y, id, array)
+function createButton(x, y, id)
 {
     const button = document.createElement("button");
     button.style.width = buttonWidth;
@@ -88,63 +83,62 @@ function createButton(x, y, id, array)
     button.style.transform = "translate(-50%, -50%)";
     button.style.marginLeft = x + "rem";
     button.style.marginTop = y + "rem";
-
-    let signature;
-
-    if (array == 0)
-    {
-        button.textContent = keys0[id];
-        signature = signatures0[id];
-    }
-    else
-    {
-        button.textContent = keys1[id];
-        signature = signatures1[id];
-    }
+    button.style.backgroundColor = "white";
+    button.style.borderColor = "darkgrey";
+    button.id = id;
 
     button.onclick = function()
     {
-        if (signatures[q] == signature)
+        if (keys[q] == keys0[button.id])
         {
+            button.textContent = keys1[button.id];
             button.style.backgroundColor = "green";
+            button.style.pointerEvents = "none";
             setTimeout(function(){button.style.backgroundColor = "white"}, 500);
-            q = (q + 1) % signatures.length;
+
+            q++;
+            requirementT1.textContent = keys[q];
+            rights++;
+
+            if (q == keys.length)
+            {
+                clearInterval(timeHandler);
+            }
         }
         else
         {
+            button.textContent = keys1[button.id];
             button.style.backgroundColor = "red";
-            setTimeout(function(){button.style.backgroundColor = "white"}, 500);
+            setTimeout(function(){button.style.backgroundColor = "white"; button.textContent = "";}, 500);
         }
 
-        requirementT1.textContent = signatures[q];
+        total++;
+        accuracyP.textContent = Math.round(rights / total * 100) + "%";
     }
 
     map.appendChild(button);
 }
 
 const radius = 6;
-const width = 2.8;
-const marginDifference = 1.4;
-const numButtons = 12;
+const buttonDistance = 2.8;
+const spiralDifference = 3.6;
+const bottomMargin = 1.5;
+const rightMargin = 1.5;
+const circumference = 12
+const numMajorKeys = 15;
 
 for (let i = 0; i < 2; i++)
 {
-    for (let j = -1; j < numButtons - 1; j++)
+    for (let j = -1, k = 0; j < numMajorKeys - 1; j++, k++)
     {
-        let r = radius + (i + 1) * width;
-        let x = r * Math.sin(Math.PI * 2 * j / numButtons) + r + (30 - r * 2) / 2;
-        let y = r * Math.cos(Math.PI * 2 * j / numButtons) + r + (30 - r * 2) / 2;
-        createButton(x, y - marginDifference, i * numButtons + j + 1, 0);
+        let r = radius + (i + 1) * buttonDistance + Lerp(spiralDifference, -spiralDifference, k / (numMajorKeys - 1));
+        let x = r * Math.sin(Math.PI * 2 * j / circumference) + r + (30 - r * 2) / 2;
+        let y = r * Math.cos(Math.PI * 2 * j / circumference) + r + (30 - r * 2) / 2;
+        createButton(x - rightMargin, y - bottomMargin, i * numMajorKeys + j + 1);
     }
 }
 
-for (let i = 0; i < 2; i++)
+function Lerp(a, b, t)
 {
-    for (let j = -1; j < 2; j++)
-    {
-        let r = radius + i * width * 3;
-        let x = r * Math.sin(Math.PI * 2 * j / numButtons) + r + (30 - r * 2) / 2;
-        let y = r * Math.cos(Math.PI * 2 * j / numButtons) + r + (30 - r * 2) / 2;
-        createButton(x, y - marginDifference, i * 3 + j + 1, 1);
-    }
+    return (1 - t) * a + t * b;
 }
