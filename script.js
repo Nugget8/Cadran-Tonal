@@ -26,38 +26,20 @@ map.style.margin = "auto";
 map.style.backgroundColor = "gray";
 document.body.appendChild(map);
 
+let q = 0;
 let keys = [...keys0];
 keys.sort(() => Math.random() - 0.5);
 
 const requirement = document.createElement("div");
+requirement.textContent = "Selectează: " + keys[q];
 bar.appendChild(requirement);
-
-const requirementT0 = document.createElement("div");
-requirementT0.style.display = "inline";
-requirementT0.textContent = "Selectează: ";
-requirement.appendChild(requirementT0);
-
-let q = 0;
-const requirementT1 = document.createElement("div");
-requirementT1.style.display = "inline";
-requirementT1.textContent = keys[q];
-requirement.appendChild(requirementT1);
 
 let rights = 0;
 let total = 0;
 
 const accuracy = document.createElement("div");
+accuracy.textContent = "Acuratețe: 0%";
 bar.appendChild(accuracy);
-
-const accuracyT = document.createElement("div");
-accuracyT.style.display = "inline";
-accuracyT.textContent = "Acuratețe: ";
-accuracy.appendChild(accuracyT);
-
-const accuracyP = document.createElement("div");
-accuracyP.style.display = "inline";
-accuracyP.textContent = "0%";
-accuracy.appendChild(accuracyP);
 
 let seconds = 0;
 
@@ -97,12 +79,14 @@ function createButton(x, y, id)
             setTimeout(function(){button.style.backgroundColor = "white"}, 500);
 
             q++;
-            requirementT1.textContent = keys[q];
+            requirement.textContent = "Selectează: " + keys[q];
             rights++;
 
             if (q == keys.length)
             {
                 clearInterval(timeHandler);
+                requirement.textContent = "*Refresh la pagină pentru a începe din nou."
+                requirement.style.color = "gray";
             }
         }
         else
@@ -113,7 +97,7 @@ function createButton(x, y, id)
         }
 
         total++;
-        accuracyP.textContent = Math.round(rights / total * 100) + "%";
+        accuracy.textContent = "Acuratețe: " + Math.round(rights / total * 100) + "%";
     }
 
     map.appendChild(button);
