@@ -1,5 +1,12 @@
 const keys0 = ["la#", "re#", "sol#", "do#", "fa#", "si", "mi", "la", "re", "sol", "do", "fa", "sib", "mib", "lab", "Do#", "Fa#", "Si", "Mi", "La", "Re", "Sol", "Do", "Fa", "Sib", "Mib", "Lab", "Reb", "Solb", "Dob"];
 const keys1 = ["la#\n(7#)", "re#\n(6#)", "sol#\n(5#)", "do#\n(4#)", "fa#\n(3#)", "si\n(2#)", "mi\n(1#)", "la", "re\n(1b)", "sol\n(2b)", "do\n(3b)", "fa\n(4b)", "sib\n(5b)", "mib\n(6b)", "lab\n(7b)", "Do#\n(7#)", "Fa#\n(6#)", "Si\n(5#)", "Mi\n(4#)", "La\n(3#)", "Re\n(2#)", "Sol\n(1#)", "Do", "Fa\n(1b)", "Sib\n(2b)", "Mib\n(3b)", "Lab\n(4b)", "Reb\n(5b)", "Solb\n(6b)", "Dob\n(7b)"];
+
+const keys2 = ["do#", "fa#", "si", "mi", "la", "re", "sol", "do", "fa", "Mi", "La", "Re", "Sol", "Do", "Fa", "Sib", "Mib", "Lab"];
+const keys3 = ["do#\n(4#)", "fa#\n(3#)", "si\n(2#)", "mi\n(1#)", "la", "re\n(1b)", "sol\n(2b)", "do\n(3b)", "fa\n(4b)", "Mi\n(4#)", "La\n(3#)", "Re\n(2#)", "Sol\n(1#)", "Do", "Fa\n(1b)", "Sib\n(2b)", "Mib\n(3b)", "Lab\n(4b)"];
+
+const keys4 = ["si", "mi", "la", "re", "sol", "Re", "Sol", "Do", "Fa", "Sib"];
+const keys5 = ["si\n(2#)", "mi\n(1#)", "la", "re\n(1b)", "sol\n(2b)", "Re\n(2#)", "Sol\n(1#)", "Do", "Fa\n(1b)", "Sib\n(2b)"];
+
 const colors = ["rgb(204, 255, 204)", "rgb(255, 255, 204)", "rgb(255, 230, 204)", "rgb(255, 204, 204)"];
 
 const buttonWidth = 2.5;
@@ -12,6 +19,7 @@ const bottomMargin = 1.5;
 const rightMargin = 1.5;
 const mapSize = 30;
 
+document.title = "Cadranul Tonal";
 document.body.style.margin = "0rem";
 document.body.style.userSelect = "none";
 
@@ -57,10 +65,10 @@ function EnterMenu()
         EnterFind();
     });
 
-    CreateListItem("Clasament", function()
+    CreateListItem("Recorduri", function()
     {
         container.remove();
-        EnterRanking();
+        EnterRecords();
     });
 
     document.body.appendChild(container);
@@ -116,22 +124,20 @@ function ChoseDificulty()
     CreateListItem("Ușor: până la 2 alterații.", function()
     {
         container.remove(); 
-        EnterGame();
+        EnterGame(2);
     }, "rgb(0, 170, 0)");
 
     CreateListItem("Mediu: până la 4 alterații.", function()
     {
         container.remove(); 
-        EnterGame();
+        EnterGame(1);
     }, "rgb(170, 170, 0)");
 
     CreateListItem("Greu: până la 7 alterații.", function()
     {
         container.remove(); 
-        EnterGame();
+        EnterGame(0);
     }, "rgb(170, 0, 0)");
-
-    CreateListItem("*Nivelul de dificultate nu este disponibil momentan.", function(){}, "rgb(170, 170, 170)");
 
     document.body.appendChild(container);
 }
@@ -238,7 +244,19 @@ function EnterGame(difficulty)
     header.appendChild(info);
 
     let q = 0;
-    let keys = [...keys0];
+    let keys = [];
+    if (difficulty == 0)
+    {
+        keys = [...keys0];
+    }
+    else if (difficulty == 1)
+    {
+        keys = [...keys2];
+    }
+    else
+    {
+        keys = [...keys4];
+    }
     keys.sort(() => Math.random() - 0.5);
 
     let requirement = document.createElement("div");
@@ -262,11 +280,13 @@ function EnterGame(difficulty)
     time.textContent = "Timp: 00:00";
     info.appendChild(time);
 
+    let minutes;
+    let seconds1;
     let timeHandler = setInterval(function()
     {
         seconds++;
-        let minutes =  Math.floor(seconds / 60);
-        let seconds1 = seconds - minutes * 60;
+        minutes =  Math.floor(seconds / 60);
+        seconds1 = seconds - minutes * 60;
         time.textContent = "Timp: " + Math.floor(minutes / 10) + "" + minutes % 10 + ":" + Math.floor(seconds1 / 10) + "" + seconds1 % 10;
     }, 1000);
 
@@ -293,6 +313,22 @@ function EnterGame(difficulty)
         button.style.cursor = "pointer";
         button.id = id;
 
+        if (difficulty == 1 && !keys2.includes(keys0[id]))
+        {
+            button.textContent = keys1[id];
+            button.style.cursor = "default";
+            map.appendChild(button);
+            return;
+        }
+
+        if (difficulty == 2 && !keys4.includes(keys0[id]))
+        {
+            button.textContent = keys1[id];
+            button.style.cursor = "default";
+            map.appendChild(button);
+            return;
+        }
+
         buttons.push(button);
 
         button.onclick = function()
@@ -303,6 +339,7 @@ function EnterGame(difficulty)
                 if (keys[q] == keys0[button.id])
                 {
                     button.textContent = keys1[button.id];
+                    button.id = -1;
     
                     button.style.pointerEvents = "none";
                     previous = [];
@@ -316,17 +353,91 @@ function EnterGame(difficulty)
                     }
                     wrongStreak = 0;
     
+                    total++;
+
                     q++;
                     requirement.textContent = "Selectează: " + keys[q];
-    
                     if (q == keys.length)
                     {
+                        canPlay = false;
+
                         clearInterval(timeHandler);
                         requirement.remove();
+
+                        let div = document.createElement("div");
+                        div.style.position = "absolute";
+                        div.style.marginTop = mapSize / 2 + "rem";
+                        div.style.marginLeft = mapSize / 2 + "rem";
+                        div.style.transform = "translate(-50%, -50%)";
+                        div.style.backgroundColor = "rgb(242, 250, 255)";
+                        div.style.borderRadius = "1rem";
+                        div.style.cursor = "default";
+            
+                        let divText = document.createElement("div");
+                        divText.style.padding = "1rem 1rem 0rem 1rem";
+                        divText.style.textAlign = "center";
+                        divText.textContent = "Scorul obținut:"
+                        div.appendChild(divText);
+
+                        let divScore = document.createElement("div");
+                        divScore.style.display = "flex";
+                        divScore.style.padding = "0rem 1rem 1rem 1rem";
+                        div.appendChild(divScore);
+
+                        let accuracyScore = document.createElement("div");
+                        accuracyScore.style.display = "inline-block";
+                        accuracyScore.style.flexGrow = "1";
+                        accuracyScore.style.textAlign = "center";
+                        accuracyScore.textContent = Math.round(rights / total * 100) + "%";
+                        divScore.appendChild(accuracyScore);
+
+                        let timeScore = document.createElement("div");
+                        timeScore.style.display = "inline-block";
+                        timeScore.style.flexGrow = "1";
+                        timeScore.style.textAlign = "center";
+                        timeScore.style.color = "gray";
+                        timeScore.textContent = Math.floor(minutes / 10) + "" + minutes % 10 + ":" + Math.floor(seconds1 / 10) + "" + seconds1 % 10;
+                        divScore.appendChild(timeScore);
+                
+                        let divButtons = document.createElement("div");
+                        divButtons.style.display = "flex";
+                        div.appendChild(divButtons);
+                
+                        let closeButton = document.createElement("div");
+                        closeButton.style.display = "inline-block";
+                        closeButton.style.flexGrow = "1";
+                        closeButton.style.textAlign = "center";
+                        closeButton.style.padding = "0.5rem";
+                        closeButton.style.backgroundColor = "rgb(242, 242, 242)";
+                        closeButton.style.borderBottomLeftRadius = "1rem";
+                        closeButton.style.cursor = "pointer";
+                        closeButton.textContent = "Închide";
+                        closeButton.onclick = function()
+                        {
+                            div.remove();
+                            canPlay = true;
+                        };
+                        divButtons.appendChild(closeButton);
+                
+                        let rankingButton = document.createElement("div");
+                        rankingButton.style.display = "inline-block";
+                        rankingButton.style.flexGrow = "1";
+                        rankingButton.style.textAlign = "center";
+                        rankingButton.style.padding = "0.5rem";
+                        rankingButton.style.backgroundColor = "lightskyblue";
+                        rankingButton.style.borderBottomRightRadius = "1rem";
+                        rankingButton.style.cursor = "pointer";
+                        rankingButton.textContent = "Recorduri";
+                        rankingButton.onclick = function()
+                        {
+                            container.remove();
+                            EnterRecords();
+                        };
+                        divButtons.appendChild(rankingButton);
+                
+                        map.appendChild(div);
                     }
-    
-                    total++;
-                }
+                }   
                 else
                 {
                     if (!previous.includes(button.id))
@@ -338,7 +449,14 @@ function EnterGame(difficulty)
     
                     button.textContent = keys1[button.id];
                     button.style.backgroundColor = colors[3];
-                    setTimeout(function(){button.style.backgroundColor = "white"; button.textContent = "";}, 1000);
+                    setTimeout(function()
+                    {
+                        if (button.id >= 0)
+                        {
+                            button.style.backgroundColor = "white";
+                            button.textContent = "";
+                        }
+                    }, 1000);
     
                     if (wrongStreak > 2 && !hint)
                     {
@@ -462,7 +580,7 @@ function EnterFind()
     document.body.appendChild(container);
 }
 
-function EnterRanking()
+function EnterRecords()
 {
     let container = document.createElement("div");
 
@@ -473,7 +591,7 @@ function EnterRanking()
     header.style.backgroundColor = "lightskyblue";
     header.style.textAlign = "center";
     header.style.cursor = "default";
-    header.textContent = "Clasament";
+    header.textContent = "Recorduri";
     container.appendChild(header);
 
     let menu = document.createElement("div");
@@ -506,7 +624,7 @@ function EnterRanking()
         list.appendChild(li);
     }
 
-    CreateListItem("*Nu există înscrieri în clasament.", "rgb(170, 170, 170)");
+    CreateListItem("*Nu există recorduri.", "rgb(170, 170, 170)");
 
     document.body.appendChild(container);
 }
