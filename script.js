@@ -9,6 +9,10 @@ const keys5 = ["si\n(2#)", "mi\n(1#)", "la", "re\n(1b)", "sol\n(2b)", "Re\n(2#)"
 
 const colors = ["rgb(204, 255, 204)", "rgb(255, 255, 204)", "rgb(255, 230, 204)", "rgb(255, 204, 204)"];
 
+const difficulties = ["Greu", "Mediu", "Ușor"];
+
+const difficultiesColors = ["rgb(170, 0, 0)", "rgb(170, 170, 0)", "rgb(0, 170, 0)"];
+
 const buttonWidth = 2.5;
 const buttonHeight = 2.5;
 const buttonBorderRadius = 1;
@@ -22,6 +26,17 @@ const mapSize = 30;
 document.title = "Cadranul Tonal";
 document.body.style.margin = "0rem";
 document.body.style.userSelect = "none";
+
+let meta = document.createElement("meta");
+meta.name = "viewport";
+meta.content = "width=device-width, initial-scale=1.0";
+document.head.appendChild(meta);
+
+let records = JSON.parse(localStorage.getItem("records"));
+if (records == null)
+{
+    records = [];
+}
 
 function EnterMenu()
 {
@@ -125,19 +140,19 @@ function ChoseDificulty()
     {
         container.remove(); 
         EnterGame(2);
-    }, "rgb(0, 170, 0)");
+    }, difficultiesColors[2]);
 
     CreateListItem("Mediu: până la 4 alterații.", function()
     {
         container.remove(); 
         EnterGame(1);
-    }, "rgb(170, 170, 0)");
+    }, difficultiesColors[1]);
 
     CreateListItem("Greu: până la 7 alterații.", function()
     {
         container.remove(); 
         EnterGame(0);
-    }, "rgb(170, 0, 0)");
+    }, difficultiesColors[0]);
 
     document.body.appendChild(container);
 }
@@ -280,14 +295,10 @@ function EnterGame(difficulty)
     time.textContent = "Timp: 00:00";
     info.appendChild(time);
 
-    let minutes;
-    let seconds1;
     let timeHandler = setInterval(function()
     {
         seconds++;
-        minutes =  Math.floor(seconds / 60);
-        seconds1 = seconds - minutes * 60;
-        time.textContent = "Timp: " + Math.floor(minutes / 10) + "" + minutes % 10 + ":" + Math.floor(seconds1 / 10) + "" + seconds1 % 10;
+        time.textContent = "Timp: " + SecondsToMinutesAndSeconds(seconds);
     }, 1000);
 
     let hintHandler;
@@ -396,7 +407,7 @@ function EnterGame(difficulty)
                         timeScore.style.flexGrow = "1";
                         timeScore.style.textAlign = "center";
                         timeScore.style.color = "gray";
-                        timeScore.textContent = Math.floor(minutes / 10) + "" + minutes % 10 + ":" + Math.floor(seconds1 / 10) + "" + seconds1 % 10;
+                        timeScore.textContent = SecondsToMinutesAndSeconds(seconds);
                         divScore.appendChild(timeScore);
                 
                         let divButtons = document.createElement("div");
@@ -434,6 +445,45 @@ function EnterGame(difficulty)
                             EnterRecords();
                         };
                         divButtons.appendChild(rankingButton);
+
+                        records.push([difficulty, Math.round(rights / total * 100), seconds]);
+                        records.sort(function(a, b)
+                        {
+                            if (a[0] == b[0])
+                            {
+                                if (a[1] == b[1])
+                                {
+                                    return a[2] - b[2];
+                                }
+                                else
+                                {
+                                    return b[1] - a[1];
+                                }
+                            }
+                            else
+                            {
+                                return a[0] - b[0];
+                            }
+                        });
+                        for (let i = 0, j = 0, k = 0; i < records.length; i++)
+                        {
+                            if (records[i][0] != k)
+                            {
+                                k = records[i][0];
+                                j = 1;
+                            }
+                            else
+                            {
+                                j++;
+                            }
+                            
+                            if (j > 3)
+                            {
+                                records.splice(i, 1);
+                                i--;
+                            }
+                        }
+                        localStorage.setItem("records", JSON.stringify(records));
                 
                         map.appendChild(div);
                     }
@@ -583,6 +633,7 @@ function EnterFind()
 function EnterRecords()
 {
     let container = document.createElement("div");
+    let canChose = true;
 
     let header = document.createElement("div");
     header.style.width = mapSize + "rem";
@@ -624,9 +675,119 @@ function EnterRecords()
         list.appendChild(li);
     }
 
-    CreateListItem("*Nu există recorduri.", "rgb(170, 170, 170)");
+    if (records.length == 0)
+    {
+        CreateListItem("*Nu există recorduri.", "rgb(170, 170, 170)");
+    }
+    else
+    {
+        for (let i = 0; i < records.length; i++)
+        {
+            let li = document.createElement("div");
+            li.style.display = "flex";
+            li.style.alignItems = "center";
+            li.style.width = "100%";
+            li.style.padding = "0.5rem 0rem 0.5rem 0rem";
+            li.style.borderBottom = "0.1rem solid rgb(230, 230, 230)";
+            li.style.alignItems = "center";
+            li.style.justifyContent = "space-around";
+            li.style.cursor = "pointer";
+            li.onclick = function()
+            {
+                if (canChose)
+                {
+                    canChose = false;
+            
+                    let div = document.createElement("div");
+                    div.style.position = "absolute";
+                    div.style.marginLeft = "50%";
+                    div.style.transform = "translateX(-50%)";
+                    div.style.top = mapSize / 2 + "rem";
+                    div.style.backgroundColor = "rgb(242, 250, 255)";
+                    div.style.borderRadius = "1rem";
+                    div.style.cursor = "default";
+            
+                    let divText = document.createElement("div");
+                    divText.style.padding = "1rem";
+                    divText.textContent = "Sigur dorești să ștergi recordul cu numărul " + (i + 1) + "?";
+                    div.appendChild(divText);
+            
+                    let divButtons = document.createElement("div");
+                    divButtons.style.display = "flex";
+                    div.appendChild(divButtons);
+            
+                    let yesButton = document.createElement("div");
+                    yesButton.style.display = "inline-block";
+                    yesButton.style.flexGrow = "1";
+                    yesButton.style.textAlign = "center";
+                    yesButton.style.padding = "0.5rem 0rem 0.5rem 0rem";
+                    yesButton.style.backgroundColor = "rgb(255, 170, 170)";
+                    yesButton.style.borderBottomLeftRadius = "1rem";
+                    yesButton.style.cursor = "pointer";
+                    yesButton.textContent = "Da";
+                    yesButton.onclick = function()
+                    {
+                        records.splice(i, 1);
+                        localStorage.setItem("records", JSON.stringify(records));
+                        canChose = true;
+                        container.remove();
+                        EnterRecords();
+                    };
+                    divButtons.appendChild(yesButton);
+            
+                    let noButton = document.createElement("div");
+                    noButton.style.display = "inline-block";
+                    noButton.style.flexGrow = "1";
+                    noButton.style.textAlign = "center";
+                    noButton.style.padding = "0.5rem 0rem 0.5rem 0rem";
+                    noButton.style.backgroundColor = "rgb(242, 242, 242)";
+                    noButton.style.borderBottomRightRadius = "1rem";
+                    noButton.style.cursor = "pointer";
+                    noButton.textContent = "Nu";
+                    noButton.onclick = function()
+                    {
+                        div.remove();
+                        canChose = true;
+                    };
+                    divButtons.appendChild(noButton);
+            
+                    container.appendChild(div);
+                }
+            };
+            list.appendChild(li);
+
+            let difficultyDiv = document.createElement("div");
+            li.appendChild(difficultyDiv);
+
+            let difficultyText0 = document.createElement("div");
+            difficultyText0.style.display = "inline-block";
+            difficultyText0.textContent = i + 1 + ". Dificultate:\xa0";
+            difficultyDiv.appendChild(difficultyText0);
+
+            let difficultyText1 = document.createElement("div");
+            difficultyText1.style.display = "inline-block";
+            difficultyText1.style.color = difficultiesColors[records[i][0]];
+            difficultyText1.textContent = difficulties[records[i][0]];
+            difficultyDiv.appendChild(difficultyText1);
+
+            let accuracyText = document.createElement("div");
+            accuracyText.textContent = "Acuratețe: " + records[i][1] + "%";
+            li.appendChild(accuracyText);
+
+            let timeText = document.createElement("div");
+            timeText.textContent = "Timp: " + SecondsToMinutesAndSeconds(records[i][2]);
+            li.appendChild(timeText);
+        }
+    }
 
     document.body.appendChild(container);
+}
+
+function SecondsToMinutesAndSeconds(seconds)
+{
+    let minutes =  Math.floor(seconds / 60);
+    let seconds1 = seconds - minutes * 60;
+    return Math.floor(minutes / 10) + "" + minutes % 10 + ":" + Math.floor(seconds1 / 10) + "" + seconds1 % 10;
 }
 
 function Lerp(a, b, t)
