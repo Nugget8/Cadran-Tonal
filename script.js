@@ -740,10 +740,10 @@ function EnterRecords()
                     canChose = false;
             
                     let div = document.createElement("div");
-                    div.style.position = "absolute";
-                    div.style.marginLeft = "50%";
-                    div.style.transform = "translateX(-50%)";
-                    div.style.top = mapSize / 2 + "rem";
+                    div.style.position = "fixed";
+                    div.style.left = "50%";
+                    div.style.top = "50%";
+                    div.style.transform = "translate(-50%, -50%)";
                     div.style.backgroundColor = "rgb(230, 242, 255)";
                     div.style.borderRadius = "1rem";
                     div.style.cursor = "default";
