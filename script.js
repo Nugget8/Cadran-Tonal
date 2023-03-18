@@ -9,9 +9,9 @@ const keys5 = ["si\n(2#)", "mi\n(1#)", "la", "re\n(1b)", "sol\n(2b)", "Re\n(2#)"
 
 const colors = ["rgb(204, 255, 204)", "rgb(255, 255, 204)", "rgb(255, 230, 204)", "rgb(255, 204, 204)"];
 
-const difficulties = ["Greu", "Mediu", "Ușor"];
+const difficulties = ["Cel mai greu", "Mai greu", "Greu", "Mediu", "Ușor", "Cel mai ușor"];
 
-const difficultiesColors = ["rgb(170, 0, 0)", "rgb(170, 170, 0)", "rgb(0, 170, 0)"];
+const difficultiesColors = ["rgb(170, 0, 0)", "rgb(170, 57, 0)", "rgb(170, 113, 0)", "rgb(170, 170, 0)", "rgb(85, 170, 0)", "rgb(0, 170, 0)"];
 
 const buttonWidth = 2.5;
 const buttonHeight = 2.5;
@@ -124,40 +124,68 @@ function ChoseDificulty()
     list.style.backgroundColor = "rgb(242, 250, 255)";
     container.appendChild(list);
 
-    function CreateListItem(name, func, textColor)
+    function CreateListItem(name, description, func, col)
     {
         let li = document.createElement("div");
-        li.textContent = name;
         li.style.padding = "0.5rem 0rem 0.5rem 1rem";
         li.style.borderBottom = "0.1rem solid rgb(230, 230, 230)";
-        li.style.color = textColor;
         li.style.cursor = "pointer";
         li.onclick = func;
+
+        let text0 = document.createElement("div");
+        text0.style.display = "inline-block";
+        text0.style.color = col;
+        text0.textContent = name;
+        li.appendChild(text0);
+
+        let text1 = document.createElement("div");
+        text1.style.display = "inline-block";
+        text1.textContent = description;
+        li.appendChild(text1);
+
         list.appendChild(li);
     }
 
-    CreateListItem("Ușor: până la 2 alterații.", function()
+    CreateListItem(difficulties[5], "\xa0(până la 2 alterații cu afișare)", function()
     {
         container.remove(); 
-        EnterGame(2);
+        EnterGame(5, 2, true);
+    }, difficultiesColors[5]);
+
+    CreateListItem(difficulties[4], "\xa0(până la 2 alterații fără afișare)", function()
+    {
+        container.remove(); 
+        EnterGame(4, 2, false);
+    }, difficultiesColors[4]);
+
+    CreateListItem(difficulties[3], "\xa0(până la 4 alterații cu afișare)", function()
+    {
+        container.remove(); 
+        EnterGame(3, 1, true);
+    }, difficultiesColors[3]);
+
+    CreateListItem(difficulties[2], "\xa0(până la 4 alterații fără afișare)", function()
+    {
+        container.remove(); 
+        EnterGame(2, 1, false);
     }, difficultiesColors[2]);
 
-    CreateListItem("Mediu: până la 4 alterații.", function()
+    CreateListItem(difficulties[1], "\xa0(până la 7 alterații cu afișare)", function()
     {
         container.remove(); 
-        EnterGame(1);
+        EnterGame(1, 0, true);
     }, difficultiesColors[1]);
 
-    CreateListItem("Greu: până la 7 alterații.", function()
+    CreateListItem(difficulties[0], "\xa0(până la 7 alterații fără afișare)", function()
     {
         container.remove(); 
-        EnterGame(0);
+        EnterGame(0, 0, false);
     }, difficultiesColors[0]);
 
     document.body.appendChild(container);
 }
 
-function EnterGame(difficulty)
+function EnterGame(difficulty, level, show)
 {
     let container = document.createElement("div");
 
@@ -260,11 +288,11 @@ function EnterGame(difficulty)
 
     let q = 0;
     let keys = [];
-    if (difficulty == 0)
+    if (level == 0)
     {
         keys = [...keys0];
     }
-    else if (difficulty == 1)
+    else if (level == 1)
     {
         keys = [...keys2];
     }
@@ -324,7 +352,7 @@ function EnterGame(difficulty)
         button.style.cursor = "pointer";
         button.id = id;
 
-        if (difficulty == 1 && !keys2.includes(keys0[id]))
+        if (level == 1 && !keys2.includes(keys0[id]) && show)
         {
             button.textContent = keys1[id];
             button.style.cursor = "default";
@@ -332,7 +360,7 @@ function EnterGame(difficulty)
             return;
         }
 
-        if (difficulty == 2 && !keys4.includes(keys0[id]))
+        if (level == 2 && !keys4.includes(keys0[id]) && show)
         {
             button.textContent = keys1[id];
             button.style.cursor = "default";
@@ -346,25 +374,40 @@ function EnterGame(difficulty)
         {
             if (canPlay)
             {
-
                 if (keys[q] == keys0[button.id])
                 {
                     button.textContent = keys1[button.id];
-                    button.id = -1;
-    
-                    button.style.pointerEvents = "none";
-                    previous = [];
                     hint = false;
                     clearInterval(hintHandler);
                     button.style.backgroundColor = colors[Math.min(wrongStreak, 3)];
+
+                    if (show)
+                    {
+                        button.id = -1;
+                        previous = [];
+                        button.style.pointerEvents = "none";
+                    }
+                    else
+                    {
+                        while (previous.length > 3)
+                        {
+                            previous.shift();
+                        }
+
+                        setTimeout(function()
+                        {
+                            button.textContent = "";
+                            button.style.backgroundColor = "white";
+                        }, 1000);
+                    }
     
                     if (wrongStreak < 3)
                     {
                         rights++;
+                        total++;
                     }
                     wrongStreak = 0;
     
-                    total++;
 
                     q++;
                     requirement.textContent = "Selectează: " + keys[q];
@@ -490,7 +533,7 @@ function EnterGame(difficulty)
                 }   
                 else
                 {
-                    if (!previous.includes(button.id))
+                    if (!previous.includes(button.id) && wrongStreak < 3)
                     {
                         previous.push(button.id);
                         wrongStreak++;
@@ -685,12 +728,10 @@ function EnterRecords()
         {
             let li = document.createElement("div");
             li.style.display = "flex";
-            li.style.alignItems = "center";
             li.style.width = "100%";
             li.style.padding = "0.5rem 0rem 0.5rem 0rem";
             li.style.borderBottom = "0.1rem solid rgb(230, 230, 230)";
-            li.style.alignItems = "center";
-            li.style.justifyContent = "space-around";
+            li.style.justifyContent = "space-between";
             li.style.cursor = "pointer";
             li.onclick = function()
             {
@@ -703,7 +744,7 @@ function EnterRecords()
                     div.style.marginLeft = "50%";
                     div.style.transform = "translateX(-50%)";
                     div.style.top = mapSize / 2 + "rem";
-                    div.style.backgroundColor = "rgb(242, 250, 255)";
+                    div.style.backgroundColor = "rgb(230, 242, 255)";
                     div.style.borderRadius = "1rem";
                     div.style.cursor = "default";
             
@@ -740,7 +781,7 @@ function EnterRecords()
                     noButton.style.flexGrow = "1";
                     noButton.style.textAlign = "center";
                     noButton.style.padding = "0.5rem 0rem 0.5rem 0rem";
-                    noButton.style.backgroundColor = "rgb(242, 242, 242)";
+                    noButton.style.backgroundColor = "rgb(250, 250, 250)";
                     noButton.style.borderBottomRightRadius = "1rem";
                     noButton.style.cursor = "pointer";
                     noButton.textContent = "Nu";
@@ -761,6 +802,7 @@ function EnterRecords()
 
             let difficultyText0 = document.createElement("div");
             difficultyText0.style.display = "inline-block";
+            difficultyText0.style.marginLeft = "1rem";
             difficultyText0.textContent = i + 1 + ". Dificultate:\xa0";
             difficultyDiv.appendChild(difficultyText0);
 
@@ -775,6 +817,7 @@ function EnterRecords()
             li.appendChild(accuracyText);
 
             let timeText = document.createElement("div");
+            timeText.style.marginRight = "1rem";
             timeText.textContent = "Timp: " + SecondsToMinutesAndSeconds(records[i][2]);
             li.appendChild(timeText);
         }
