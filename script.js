@@ -29,7 +29,7 @@ document.body.style.userSelect = "none";
 
 let meta = document.createElement("meta");
 meta.name = "viewport";
-meta.content = "width=device-width, initial-scale=1.0";
+meta.content = "width=device-width";
 document.head.appendChild(meta);
 
 let records = JSON.parse(localStorage.getItem("records"));
